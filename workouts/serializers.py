@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import TrainingSession, WorkoutLog
 from programs.models import ExerciseProgram
 from accounts.models import User
+from exercises.models import Exercise
 
 
 class TrainingSessionSerializer(serializers.ModelSerializer):
@@ -14,6 +15,7 @@ class TrainingSessionSerializer(serializers.ModelSerializer):
             "user",
             "date",
             "created_at",
+            "program",
             "program_name",
             "duration",
             "notes",
@@ -28,7 +30,6 @@ class TrainingSessionSerializer(serializers.ModelSerializer):
 
 
 class WorkoutLogSerializer(serializers.ModelSerializer):
-
     session_id = serializers.CharField(source="session.id", read_only=True)
     exercise_name = serializers.CharField(source="exercise.name", read_only=True)
     volume = serializers.SerializerMethodField()
@@ -37,7 +38,9 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkoutLog
         fields = [
+            "id",
             "session_id",
+            "exercise",  # Add this line
             "exercise_name",
             "sets",
             "reps",
@@ -46,18 +49,31 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
             "volume",
             "notes",
         ]
+        read_only_fields = ["id", "volume", "exercise"]  # Make 'exercise' read-only
 
     def get_volume(self, obj):
         return obj.sets * obj.reps * obj.weight
 
     def get_notes(self, obj):
-        return obj.notes
+        return obj.notes if obj.notes else ""
+
 
 
 class WorkoutLogCreateUpdateSerializer(serializers.ModelSerializer):
+    exercise = serializers.PrimaryKeyRelatedField(
+        queryset=Exercise.objects.all(), required=True
+    )
+    session = serializers.PrimaryKeyRelatedField(
+        queryset=TrainingSession.objects.all(), required=True
+    )
+
     class Meta:
         model = WorkoutLog
         fields = ["session", "exercise", "sets", "reps", "weight", "rest_time", "notes"]
+        extra_kwargs = {
+            "rest_time": {"required": False, "allow_null": True},
+            "notes": {"required": False, "allow_null": True},
+        }
 
     def validate(self, data):
         session_user = data["session"].user
@@ -68,3 +84,11 @@ class WorkoutLogCreateUpdateSerializer(serializers.ModelSerializer):
                 "You can only log exercises for your own sessions."
             )
         return data
+
+    def to_internal_value(self, data):
+        # Handle empty strings for optional fields
+        if "rest_time" in data and data["rest_time"] == "":
+            data["rest_time"] = None
+        if "notes" in data and data["notes"] == "":
+            data["notes"] = None
+        return super().to_internal_value(data)

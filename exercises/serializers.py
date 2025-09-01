@@ -5,7 +5,7 @@ from .models import Exercise
 class ExerciseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exercise
-        fields = ["id", "name", "category"]
+        fields = ["id", "name", "category", "description"]  # Add description
         read_only_fields = ["id"]
 
     def create(self, validated_data):

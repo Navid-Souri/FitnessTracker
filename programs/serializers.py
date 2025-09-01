@@ -51,8 +51,9 @@ class ProgramExerciseWriteSerializer(serializers.ModelSerializer):
     
     def validate(self, attrs): 
         # Validate program-exercise combination doesn't exist already
-        if self.isinstance is None and ProgramExercise.objects.filter(
+        if self.instance is None and ProgramExercise.objects.filter(
             program=attrs['program'],
             exercise=attrs['exercise']
         ).exists():
             raise serializers.ValidationError("This exercise is already part of the program.")
+        return attrs

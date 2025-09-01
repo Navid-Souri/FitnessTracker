@@ -60,6 +60,7 @@ class WorkoutLog(models.Model):
     )
     notes = models.TextField(
         blank=True,
+        null=True,
         help_text="Additional notes about this exercise"
     )
 

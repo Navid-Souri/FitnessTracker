@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-azf@mj5b@v4yxtno!wd=xiici_ct4f=wl*0ddyhjrfcouxa-al"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['nasiruos.pythonanywhere.com']
+ALLOWED_HOSTS = ["nasiruos.pythonanywhere.com", "localhost", "127.0.0.1", "10.0.2.2"]
 
 
 # Application definition
@@ -44,9 +44,11 @@ INSTALLED_APPS = [
     "workouts",
     "rest_framework",
     "rest_framework_simplejwt",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -54,6 +56,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
 ]
 
 ROOT_URLCONF = "TMN.urls"
@@ -75,7 +78,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "TMN.wsgi.application"
 
-
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://localhost:5500",  # Add this for VS Code Live Server
+    "http://127.0.0.1:5500",  # Add this for VS Code Live Server
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5000",
+    "http://10.0.2.2:8000",  # Android emulator
+    # "https://navid-souri.github.io/FT/",
+]
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True  # For development only
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
@@ -105,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = "accounts.User"
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
